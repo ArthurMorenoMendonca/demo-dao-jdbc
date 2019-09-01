@@ -35,7 +35,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 			   + "(?)",
 			   Statement.RETURN_GENERATED_KEYS);
 			
-			st.setString(2, obj.getName());
+			st.setString(1, obj.getName());
 			
 			int rowsAffected = st.executeUpdate();
 			
@@ -45,14 +45,15 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 					int id = rs.getInt(1);
 					obj.setId(id);
 				}
-			}else {
+			}
+			else {
 				throw new DbException("Unexpected error! No rows Affected");
 			}
 		}catch (SQLException e) {
 			throw new DbException(e.getMessage());
 		}
 		finally {
-			DB.closeConnection();
+			DB.closeStatement(st);
 		}
 		
 	}
@@ -87,16 +88,17 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	public void deleteById(Integer id) {
 		
 		PreparedStatement st = null;
-		
 		try {
 			st = conn.prepareStatement(
-				"DELETE FROM department where = Id ?");
+				"DELETE FROM department WHERE Id = ?");
+
 			st.setInt(1, id);
-			
+
 			st.executeUpdate();
-		}catch (SQLException e) {
-			throw new DbIntegrityException(e.getMessage());
 		}
+		catch (SQLException e) {
+			throw new DbIntegrityException(e.getMessage());
+		} 
 		finally {
 			DB.closeStatement(st);
 		}
